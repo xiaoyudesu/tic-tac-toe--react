@@ -1,0 +1,57 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+
+.game {
+    margin: 50px;
+}
+
+.cells {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 90px;
+    height: 90px;
+    border: 1px solid #999;
+}
+
+.cell {
+    width: 33.33%;
+    height: 33.33%;
+    border: 1px solid #999;
+    display: inline-block;
+    text-align: center;
+    line-height: 30px;
+    font-size: 22px;
+    font-weight: bold;
+    box-sizing: border-box;
+    /*margin-right: -1px;*/
+    /*margin-top: -1px;*/
+}
+
+.step-chose {
+    /*color: aqua;*/
+    background-color: aqua;
+}
+
+.step-active {
+    /*color: aqua;*/
+    background-color: yellow;
+}
+
+.win-grid {
+    color: red;
+}
+
+
+.chose{
+    background-color: aqua;
+}
+
+
+.active{
+    background-color: yellow;
+}
