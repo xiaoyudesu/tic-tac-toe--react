@@ -17,13 +17,14 @@ function Cell(props) {
 
     className += props.active ? 'active ' : ''
     className += props.chose ? 'chose ' : ''
+    className += props.hideCell ? 'hide-cell ' : ''
 
     return (
         <div className={className}
-             style={style}
-             onClick={() => {
-                 props.onClick()
-             }}
+            style={style}
+            onClick={() => {
+                props.onClick()
+            }}
         >
             {props.value}
         </div>
@@ -47,14 +48,24 @@ class Cells extends component {
                         }
                         // console.log('winGrid  ', winGrid)
 
+                        let hideCell;
+
+                        if (this.props.hideIds.includes(i)) {
+                            hideCell = true
+                        }
+
+
+
+
+
 
                         return (
-                            <Cell chose={this.props.choseId === i} active={this.props.activeId === i} winGrid={winGrid}
-                                  key={i}
-                                  value={v}
-                                  onClick={() => {
-                                      return this.props.onClick(i, [x, y])
-                                  }}/>
+                            <Cell hideCell={hideCell} chose={this.props.choseId === i} active={this.props.activeId === i} winGrid={winGrid}
+                                key={i}
+                                value={v}
+                                onClick={() => {
+                                    return this.props.onClick(i, [x, y])
+                                }} />
                         )
                     })
                 }
@@ -105,9 +116,20 @@ class Game extends component {
         }
     }
 
+    componentDidMount() {
+        document.addEventListener('keyup', (e) => {
+            let code = e.keyCode
+            if (code === 37 || code === 38) {
+                this.jumpToPrev()
+            } else if (code === 39 || code === 40) {
+                this.jumpToNext()
+            }
+        })
+    }
+
     handleClick(i, coors) {
         // console.log(i)
-        let {history, nextX} = this.state
+        let { history, nextX } = this.state
         history = history.slice(0, this.state.stepN + 1)
         // console.log('history.length  ', history.length);
         let list = history[history.length - 1].list.slice()
@@ -118,7 +140,7 @@ class Game extends component {
             return
         }
 
-        history.push({list, coors, activeId: i})
+        history.push({ list, coors, activeId: i })
         // console.log(history)
 
         list[i] = nextX ? 'X' : 'O'
@@ -138,6 +160,27 @@ class Game extends component {
         })
     }
 
+    jumpToPrev() {
+        let stepN = this.state.stepN
+
+        if (stepN < 1) {
+            return
+        }
+        this.jumpTo(stepN - 1)
+
+    }
+
+    jumpToNext() {
+        let stepN = this.state.stepN
+
+        if (stepN > this.state.history.length - 2) {
+            return
+        }
+
+        this.jumpTo(stepN + 1)
+
+    }
+
     render() {
         let nextTip
         let steps
@@ -145,7 +188,7 @@ class Game extends component {
         let current = history[history.length - 1]
         let list = current.list.slice()
         // console.log(list);
-        let {winner, winCoors} = calculateWinner(list) || {}
+        let { winner, winCoors } = calculateWinner(list) || {}
 
 
         nextTip = winner ? `赢家： ${winner}` : (list.filter(e => e).length === list.length ? '平局' : `下一步： ${this.state.nextX ? 'X' : 'O'}`)
@@ -176,11 +219,11 @@ class Game extends component {
             // console.log(stepN, l)
 
             let prev = <button disabled={l === 1 || stepN === 0} onClick={() => {
-                this.jumpTo(stepN - 1)
+                this.jumpToPrev()
             }}>{'<<上'}</button>
 
             let next = <button disabled={stepN === l - 1} onClick={() => {
-                this.jumpTo(stepN + 1)
+                this.jumpToNext()
             }}>{'下>>'}</button>
 
             let btnStyle = {
@@ -199,14 +242,19 @@ class Game extends component {
         // console.log('winCoors  ', winCoors);
         // console.log(this.state.history[this.state.stepN].activeId, current.activeId)
 
+        let chose = this.state.history[this.state.stepN]
+
+        let hideIds = (this.state.history.slice(this.state.stepN + 1) || []).map(e => e.activeId)
+
+
         return (
             <div className={'game'}>
-                <Cells choseId={this.state.history[this.state.stepN].activeId} activeId={current.activeId}
-                       winCoors={winCoors || []} list={list}
-                       onClick={(i, coors) => this.handleClick(i, coors)}/>
+                <Cells hideIds={hideIds} choseId={chose.activeId} activeId={current.activeId}
+                    winCoors={winCoors || []} list={list}
+                    onClick={(i, coors) => this.handleClick(i, coors)} />
                 <div className={'info'}>
                     <p className={'next-tip'}>{nextTip}</p>
-                    <Buttons/>
+                    <Buttons />
                     <ol className={'steps'}>
                         {steps}
                     </ol>
@@ -218,7 +266,7 @@ class Game extends component {
 
 
 dom.render(
-    <Game/>,
+    <Game />,
     document.querySelector('#root')
 )
 
